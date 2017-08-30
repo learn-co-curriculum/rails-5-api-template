@@ -53,6 +53,40 @@ invoke  active_record
 
 Note: If you go to the `/app/models/campaign.rb` file you will notice that the `Campaign` class inherits from `ApplicationRecord` instead of `ActiveRecord::Base`. Rails 5 now uses `ApplicationRecord` as a wrapper to inherit from `ActiveRecord::Base` you should see a file `/app/models/application_record.rb` in your app directory that explains how this inheritance works. 
 
+Next we should setup __ActiveModelSerializer__ to serialize our data in JSON. 
+
+First we need to add it to the __Gemfile__
+
+```ruby 
+# Gemfile
+
+# ...
+
+# Use ActiveModelSerializers for JSON serialization
+gem 'active_model_serializers', '~> 0.10.0'
+
+# ...
+
+```
+
+Run `bundle install` and then run the generator to create our serialized file 
+
+```bash
+rails g serializer campaign
+    create  app/serializers/campaign_serializer.rb
+```
+
+We should now have a new __CampaignSerializer__ at /app/serializers/campaign/serializer.rb. We need to update it to include all of the attributes though.
+
+```ruby 
+# /app/serializers/campaign/serializer.rb
+class CampaignSerializer < ActiveModel::Serializer
+  attributes :id, :title, :description, :goal, :pledged, :created_at, :updated_at
+end
+```
+
+Looks like our __Campaign__ model is all setup. 
+
 #### Step 2: Creating the endpoint
 
 Now that we have created our __Campaign__ model we should create an endpoint to view campaigns, but first lets migrate our db migrations and build a couple of __Campaigns__ in rails console. 
