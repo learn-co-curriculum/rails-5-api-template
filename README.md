@@ -3,7 +3,7 @@
 ## Objectives
 
 * learn how to make a new rails 5 API applciation
-* Setting up RSpec & Active Model Serializers
+* Setting up Active Model Serializers
 * Creating a CRUD API
 
 ## Introduction
@@ -12,29 +12,31 @@ In this lesson we are going to be bootstrapping a Rails 5 API app using the Rail
 
 ### Rails API Template
 
-So what is Rails 5 API Template? It is a chopped down version or Rails that doesn't include a template library, asset pipeline, ActionView, and some other excess bloat that is uncessary for creating APIs. 
+So what is Rails 5 API Template? It is a slimmed down version of Rails that doesn't include a template library, asset pipeline, ActionView, and some other excess bloat that is uncessary for creating API endpoints. 
 
-You can find our more information [here](http://edgeguides.rubyonrails.org/api_app.html). Some developers feel that using Rails to build JSON APIs is a bit of an overkill, but Rails argues that being able to prototype and get up an app quickly is most important. With Rails 5 API Template it exceeds at this in spades.
+You can find our more information [here](http://edgeguides.rubyonrails.org/api_app.html). Some developers feel that using Rails to build JSON APIs is a bit of an overkill, but Rails argues that being able to prototype and get up an app up and running quickly is most important. With Rails 5 API Template it succeeds at this in spades.
 
 ### Rails New
 
-Bootstrapping a Rails 5 API Template application is just as easy as it is to create a full fledged Rails app. Before we run the command let's talk about the app we are going to be building for the next few lessons. We are going to prototype a small application call Iron Starter that allows users to create Campaigns to raise money for a project or idea. The app will be fairly simple it will include a __Campaign__ model that has many __Comments__. This is fairly basic, but it gives us a good domain to sink our teeth into. Ok so let's start building. To generate a new project we need to run the `--api` flag after the name of the app we are generating.
+Bootstrapping a Rails 5 API Template application is just as easy as it is to create a traditional Rails app. Before we run the command let's talk about the app we are going to be building for the next few lessons. We are going to prototype a small application call Iron Starter that allows users to create Campaigns to raise money for a project or idea. The app is fairly simple and will include a __Campaign__ model that has many __Comments__. While basic, it gives us a good domain to sink our teeth into. 
+
+Ok so let's get building. To generate a new project we need to run the `--api` flag after the name of the app we are generating.
 
 ```
 rails new iron-starter-api --api
 ```
 
-Next lets enter the the app directory and open it in the text editor. Let's take a look at the file directory and we will notice that the `/app/assets` folder is missing and inside of our `/app/views` folder their is just a basic `mailer.html.erb` file. As our app will only be serving JSON, we have no need of an `application.html.erb` file.
+Next lets enter the the app directory and open it in the text editor. If we take a look at the file directory and we should notice that the `/app/assets` folder is missing and inside of our `/app/views` folder is just a basic `mailer.html.erb` file. As our app will only be serving JSON, we have no need of an `application.html.erb` file.
 
 ### Creating An Endpoint (Review)
 
-In the Rails + JS section of the course we created endpoints for our JavaScript code to consume. We are going to be doing the same thing here, but we don't have to use the `respond_to` block and return either `.html` or `.json`. For this API we are only going to be returning JSON, so it allows us to clean up our code a lot and focus on our requests. 
+In the Rails + JS section of the course we created endpoints for our JavaScript code to consume. We are going to be doing the same thing here, but we don't have to use the `respond_to` block and return either `.html` or `.json`. For this API we are only going to be returning JSON, so it allows us to simplify code a lot and focus on clean responses. 
 
 Let's first build out a request for getting a list of Campaigns:
 
 #### Step 1: Building the Model 
 
-Since this is rails, we will generate models in the same way that we've always done. Our Campaign model needs attributes for `Title: String, Description: Text, Goal: Integer, Pledged: Integer`.
+Since this is Rails, we will generate models the same way that we've always done. Our Campaign model will need attributes for `Title: String, Description: Text, Goal: Integer, Pledged: Integer`.
 
 ```
 rails g model Campaign title:string description:text goal:integer pledged:integer
@@ -51,11 +53,11 @@ invoke  active_record
     create      test/fixtures/campaigns.yml
 ```
 
-Note: If you go to the `/app/models/campaign.rb` file you will notice that the `Campaign` class inherits from `ApplicationRecord` instead of `ActiveRecord::Base`. Rails 5 now uses `ApplicationRecord` as a wrapper to inherit from `ActiveRecord::Base` you should see a file `/app/models/application_record.rb` in your app directory that explains how this inheritance works. 
+Note: If we go to the `/app/models/campaign.rb` file there should be a `Campaign` class that inherits from `ApplicationRecord` instead of `ActiveRecord::Base`. Rails 5 now uses `ApplicationRecord` as a wrapper to inherit from `ActiveRecord::Base`. This is defined in the `/app/models/application_record.rb` file. 
 
 Next we should setup __ActiveModelSerializer__ to serialize our data in JSON. 
 
-First we need to add it to the __Gemfile__
+First we need to add it to the __Gemfile__:
 
 ```ruby 
 # Gemfile
@@ -69,14 +71,14 @@ gem 'active_model_serializers', '~> 0.10.0'
 
 ```
 
-Run `bundle install` and then run the generator to create our serialized file 
+Next run `bundle install` and the generator to create our serialized file:
 
 ```bash
 rails g serializer campaign
     create  app/serializers/campaign_serializer.rb
 ```
 
-We should now have a new __CampaignSerializer__ at /app/serializers/campaign/serializer.rb. We need to update it to include all of the attributes though.
+We should now have a __CampaignSerializer__ at /app/serializers/campaign/serializer.rb. We do need to update it to include all of the attributes though.
 
 ```ruby 
 # /app/serializers/campaign/serializer.rb
@@ -85,11 +87,9 @@ class CampaignSerializer < ActiveModel::Serializer
 end
 ```
 
-Looks like our __Campaign__ model is all setup. 
-
 #### Step 2: Creating the endpoint
 
-Now that we have created our __Campaign__ model we should create an endpoint to view campaigns, but first lets migrate our db migrations and build a couple of __Campaigns__ in rails console. 
+Now that we have created our __Campaign__ model, we need to create an endpoint to view campaigns, but first lets migrate our db migrations and build a couple of __Campaigns__ in Rails console. 
 
 ```ruby
 rails db:migrate
@@ -118,7 +118,7 @@ rails routes
 campaigns GET  /campaigns(.:format) campaigns#index
 ```
 
-Notice that it looking for a controller for `Campaigns` and action of `:index` lets generate that controller. 
+Notice that it looking for a controller called `Campaigns` and action of `:index`. Let's generate that controller now. 
 
 ```bash
 rails g controller Campaigns
@@ -137,7 +137,7 @@ class CampaignsController < ApplicationController
 end
 ```
 
-We should now be able to run a curl command in the terminal and get a response of JSON with an array of campaigns with our `rails server` running.
+If we run a curl command, in the terminal, we should get a response of JSON with an array of campaigns. Make sure that the `rails server` is running.
 
 ```bash
 curl http://localhost:3000/campaigns
@@ -150,7 +150,7 @@ We've now created our first endpoint, let's now build an endpoint to create a Ca
 
 ### POST /campaigns API Endpoint 
 
-First we need to add the `:create` action to our routes file and our controller 
+We will need to add a `:create` action to our routes file and our controller 
 
 ```ruby 
 # /config/routes.rb
@@ -176,7 +176,7 @@ class CampaignsController < ApplicationController
 end
 ```
 
-Let's make a post request with __curl__ and create a new campaign
+Let's try out a post request with __curl__ and create a new campaign
 
 ```bash
 curl -X POST -H 'Content-Type: application/json' -H 'Accept: application/json' http://localhost:3000/campaigns -d '{"campaign":{"title":"FlatOS","description":"Raising money to build a new OS system using Linux","goal":1000, "pledged":0}}' 
